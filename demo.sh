@@ -5,7 +5,7 @@ LOCATION="/tmp/demo"
 
 function validar_directorio
 {
-    [[ -d $LOCATION ]] || echo "El directorio existe"
+   if [[ -d $LOCATION ]] || echo "El directorio existe"
 }
 
 validar_directorio
