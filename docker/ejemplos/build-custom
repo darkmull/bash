@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# This script is executed at the end of appliance creation.  Here you can do
+# one-time actions to modify your appliance before it is ever used, like
+# removing files and directories to make it smaller, creating symlinks,
+# generating indexes, etc.
+#
+# The kiwi_type variable will contain the format of the appliance
+# (oem = disk image, vmx = VMware, iso = CD/DVD, xen = Xen).
+#
+
+# read in some variables
+. /studio/profile
+
+# read in KIWI utility functions
+. /.kconfig
+
+#======================================
+# Prune extraneous files
+#--------------------------------------
+# Remove all documentation
+docfiles=`find /usr/share/doc/packages -type f |grep -iv "copying\|license\|copyright"`
+rm -f $docfiles
+rm -rf /usr/share/info
+rm -rf /usr/share/man
+
+# baseStripLocales $kiwi_language
+
+#do not agree with license on each image change
+rm -f /etc/YaST2/licenses/license.txt
+
+# enable audible bell
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /apps/metacity/general/audible_bell --type=bool true
+
+# Disable power saving features, screensaver and lock screen
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /apps/gnome-screensaver/idle_activation_enabled --type=bool false
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /apps/gnome-screensaver/lock_enabled --type=bool false
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /apps/gnome-screensaver/logout_enabled --type=bool false
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /apps/gnome-power-management/lock/blank_screen --type=bool false
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /apps/gnome-power-management/timeout/sleep_display_ac --type=integer 0
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /apps/gnome-power-manager/buttons/lid_ac --type=string nothing
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /desktop/gnome/lockdown/disable_lock_screen --type=bool true
+
+# When power button is pressed, shutdown the POS
+gconftool-2 --direct --config-source=xml::/etc/gconf/gconf.xml.defaults --set /apps/gnome-power-manager/buttons/power --type string shutdown
+
+# finalize the gconf tree
+gconf-merge-tree /etc/gconf/gconf.xml.defaults
+
+# created links for all supported busybox apps if it was installed
+baseSetupBusyBox
+
+# enable manager registration init script if the package is present
+if [ -f /etc/init.d/suse_manager_client_registration ] ; then
+    suseInsertService suse_manager_client_registration
+fi
+
+suseInsertService ntp
+
+# Add reg to new groups
+usermod -A ars,uucp,users reg
+
+# Install script for NCR APP installation
+suseInsertService ncr-app-installer
+
+# Install NCR Platform
+/usr/java/jdk1.7.0_80/bin/java -jar RPSL-2.5.1.jar -W HW.askHW=7600 -W model.askModel=1XXX -silent
+rm -f RPSL-2.5.1.jar
+
+# Setup java 8 version for NCR App
+/usr/sbin/update-alternatives --install /usr/bin/java java /usr/java/jdk-1.8.0_171-i586/bin/java 1
+/usr/sbin/update-alternatives --set java /usr/java/jdk-1.8.0_171-i586/bin/java
+
+exit 0
