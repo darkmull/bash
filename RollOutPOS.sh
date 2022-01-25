@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -x
+set +x
 
 # -------------------------------------------
 # Declaramos variables globales
@@ -9,7 +9,7 @@ DirRoll="RollOutPOS"
 ArchTar="RollOutPOS.tar"
 ArchAct="ActualizaPOS.sh"
 LogFile="LogCopia"
-FECHAHOY=$(date +%d-%m-%Y)
+FECHAHOY=$(date +%d-%m-%Y-%H:%M:%S)
 
 
 echo "-------------------------------------------"
@@ -24,26 +24,9 @@ function elimina_RollOutPOS_Antiguo
         ls -l $DirInstalador/$DirRoll > /dev/null 2>&1
         if [ "$(echo $?)" == "0" ]; 
         then
-                rm -rf "$DirInstalador/$DirRoll"
+                rm -rf "$DirInstalador/$DirRoll" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
                 sleep 2
         fi
-: '
-
-        if [ -d "$DirInstalador/$DirRoll" ];
-        then
-            rm -rf "$DirInstalador/$DirRoll"
-            sleep 3
-            echo "-------------------------------------------" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
-            echo "$(date)" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
-            #echo "Directorio $DirRoll eliminado!"
-            echo "Directorio $DirRoll eliminado!" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
-        else
-            echo "-------------------------------------------" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
-            echo "$(date)" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
-            #echo "Directorio $DirRoll no existe!"
-            echo "Directorio $DirRoll no existe!" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
-        fi
-'
 }
 
 
