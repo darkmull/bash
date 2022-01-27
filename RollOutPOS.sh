@@ -24,7 +24,8 @@ function elimina_RollOutPOS_Antiguo
         ls -l $DirInstalador/$DirRoll > /dev/null 2>&1
         if [ "$(echo $?)" == "0" ]; 
         then
-                rm -rf "$DirInstalador/$DirRoll" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
+                rm -rf "$DirInstalador/$DirRoll"
+                echo "El directorio $DirInstalador/$DirRoll fue eliminado" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
                 sleep 2
         fi
 }
@@ -38,7 +39,7 @@ function validar_archivo_tar
         # if [[ ! -f "$DirInstalador/$ArchTar" ]];
         if [ "$(echo $?)" == "0" ];
         then
-            tar xzf $DirInstalador/$ArchTar -C $DirInstalador
+            tar xvf $DirInstalador/$ArchTar -C $DirInstalador
             echo "El archivo $ArchTar a sido descomprimido correctamente!" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
         else
             echo "El archivo $ArchTar no existe. No hay actualizaciones por ejecutar!" >> $DirInstalador/$LogFile-$FECHAHOY".txt"
