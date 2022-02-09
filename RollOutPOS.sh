@@ -16,6 +16,11 @@ echo "-------------------------------------------"
 echo "Ejecutando RollOutPOS.sh"
 # cd $DirInstalador
 
+function elimina_archivos_txt
+{
+    find /home/reg/gd90_transport/*.txt -mtime +30 -type f -exec rm {}\;
+}
+
 
 # -------------------------------------------
 # Eliminacion de Directorio RolloutPOS existente
