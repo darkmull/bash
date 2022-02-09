@@ -16,9 +16,10 @@ echo "-------------------------------------------"
 echo "Ejecutando RollOutPOS.sh"
 # cd $DirInstalador
 
-function elimina_archivos_txt
+function elimina_archivos
 {
-    find /home/reg/gd90_transport/*.txt -mtime +30 -type f -exec rm {}\;
+    find /home/reg/gd90_transport -name "*.txt" -mtime +30 -exec rm {} \;
+    find /home/reg/gd90_transport -name "RollOutPOSLinux.tar-*" -mtime +30 -exec rm {} \; 
 }
 
 
@@ -103,6 +104,7 @@ function ejecuta_ActualizaPOS
 
 # -------------------------------------------
 # llamamos a las funciones
+elimina_archivos
 elimina_RollOutPOS_Antiguo
 validar_archivo_tar
 renombrar_archivo_tar
